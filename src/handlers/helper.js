@@ -2,7 +2,7 @@ import { getgameAssets } from "../init/assets.js";
 import { getStage, setStage } from "../models/stage.model.js";
 import { getUser, removeUser } from "../models/user.model.js"
 
-export const handleDisconnet = (socket,uuid)=>{
+export const handleDisconnect = (socket,uuid)=>{
     removeUser(socket.id);
     console.log(`User disconnected ${socket.id}`);
     console.log('Current User', getUser());
