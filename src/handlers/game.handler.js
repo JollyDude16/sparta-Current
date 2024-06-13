@@ -37,8 +37,8 @@ export const gameEnd= ()=>{
 
     // 점수와 타임 스탬프 검증
     if (Math.abs(score - totalScore) > 5){
-        return {status:'fail', message:'Score verification failed'}
+        return {status:'fail', message:'Score verification failed'};
     }
     
     return {status: 'success', message:'Game ended', score};
-}
+};

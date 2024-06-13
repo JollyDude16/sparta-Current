@@ -13,14 +13,14 @@ export const handleConnection = (socket,uuid) => {
     console.log('Current users: ',getUser());
 
     const { stages } = getgameAssets();
-
     setStage(uuid, stages.data[0].id);
-    console.log('stage: ', getStage)
+    console.log('stage: ', getStage(uuid));
+    socket.emit('connection', {uuid:uuid});
 }
 
 export const handlerEvent = (io, socket, data) =>{
     if(!CLIENT_VERSION.includes(data.client)){
-        socket.emit('response', {status: 'fail', message:"Client version 틀려먹었어"});
+        socket.emit('response', {status: 'fail', message:"Client version mismatch"});
         return;
     }
     const handler = handlerMapping[data.handlerId];
