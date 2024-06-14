@@ -1,14 +1,14 @@
-import { getgameAssets } from "../init/assets";
-import { getStage, setStage } from "../models/stage.model";
+import { getgameAssets } from "../init/assets.js";
+import { clearStage, getStage, setStage } from "../models/stage.model.js";
 
 export const gameStart =(uuid, payload) =>{
     
     const { stages } = getgameAssets();
     //stages 배열에서 첫번째 스테이지
-
+    clearStage(uuid);
+    
     setStage(uuid, stages.data[0].id, payload.timestamp);
     console.log('stage: ', getStage(uuid))
-
     return {status: 'success'};
 }
 
@@ -26,7 +26,7 @@ export const gameEnd= ()=>{
     let totalScore = 0;
     stages.forEach((stage, index)=>{
         if(index ===stages.length -1){
-            stageEndTime = gameEndTIme
+            stageEndTime = gameEndTime
         }
         else{
             stageEndTime=stages[index + 1].timestamp;

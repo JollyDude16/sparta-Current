@@ -4,6 +4,19 @@ import CactiController from './CactiController.js';
 import Score from './Score.js';
 import ItemController from './ItemController.js';
 import './Socket.js'
+import { sendEvent } from './Socket.js';
+
+
+async function loadStageData() {
+  const response = await fetch('/api/assets'); // 서버 설정에 맞게 경로 설정
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  const data = await response.json();
+  return data;
+}
+
+const assets = await loadStageData();
 
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
@@ -40,6 +53,8 @@ const ITEM_CONFIG = [
   { width: 50 / 1.5, height: 50 / 1.5, id: 2, image: 'images/items/pokeball_yellow.png' },
   { width: 50 / 1.5, height: 50 / 1.5, id: 3, image: 'images/items/pokeball_purple.png' },
   { width: 50 / 1.5, height: 50 / 1.5, id: 4, image: 'images/items/pokeball_cyan.png' },
+  { width: 50 / 1.5, height: 50 / 1.5, id: 5, image: 'images/items/pokeball_orange.png' },
+  { width: 50 / 1.5, height: 50 / 1.5, id: 6, image: 'images/items/pokeball_pink.png' },
 ];
 
 // 게임 요소들
@@ -55,6 +70,8 @@ let gameSpeed = GAME_SPEED_START;
 let gameover = false;
 let hasAddedEventListenersForRestart = false;
 let waitingToStart = true;
+
+
 
 function createSprites() {
   // 비율에 맞는 크기
@@ -102,9 +119,13 @@ function createSprites() {
     };
   });
 
-  itemController = new ItemController(ctx, itemImages, scaleRatio, GROUND_SPEED);
+  const stageData = assets.stages.data;
+  const itemData = assets.items.data;
+  const itemUnlock = assets.itemUnlocks.data;
+  score = new Score(ctx, scaleRatio, stageData, itemData);
 
-  score = new Score(ctx, scaleRatio);
+  itemController = new ItemController(itemUnlock, score, ctx, itemImages, scaleRatio, GROUND_SPEED);
+
 }
 
 function getScaleRatio() {
@@ -164,6 +185,9 @@ function reset() {
   cactiController.reset();
   score.reset();
   gameSpeed = GAME_SPEED_START;
+  // 게임시작 핸들러ID 2, payload 에는 게임 시작 시간
+  sendEvent(2, { timestamp: Date.now() });
+  
 }
 
 function setupGameReset() {

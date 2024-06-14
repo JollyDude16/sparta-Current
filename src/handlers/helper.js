@@ -1,6 +1,7 @@
-import { getgameAssets } from "../init/assets.js";
-import { getStage, setStage } from "../models/stage.model.js";
+import { CLIENT_VERSION } from "../constants.js";
+import { createStage } from "../models/stage.model.js";
 import { getUser, removeUser } from "../models/user.model.js"
+import handlerMappings from "./handlerMapping.js";
 
 export const handleDisconnect = (socket,uuid)=>{
     removeUser(socket.id);
@@ -12,18 +13,17 @@ export const handleConnection = (socket,uuid) => {
     console.log(`New user connected!: ${uuid} with socket ID ${socket.id}`)
     console.log('Current users: ',getUser());
 
-    const { stages } = getgameAssets();
-    setStage(uuid, stages.data[0].id);
-    console.log('stage: ', getStage(uuid));
-    socket.emit('connection', {uuid:uuid});
+    createStage(uuid);
+
+    socket.emit('connection',{uuid:uuid})
 }
 
-export const handlerEvent = (io, socket, data) =>{
-    if(!CLIENT_VERSION.includes(data.client)){
+export const handleEvent = (io, socket, data) =>{
+    if(!CLIENT_VERSION.includes(data.clientVersion)){
         socket.emit('response', {status: 'fail', message:"Client version mismatch"});
         return;
     }
-    const handler = handlerMapping[data.handlerId];
+    const handler = handlerMappings[data.handlerId];
     if(!handler){
         socket.emit('response', {status: 'fail', message: "Handler not found"})
         return;
@@ -35,5 +35,5 @@ export const handlerEvent = (io, socket, data) =>{
         return;
     }
 
-    socket.emit('reponse',response);
+    socket.emit('response',response);
 }

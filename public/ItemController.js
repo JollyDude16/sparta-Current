@@ -1,5 +1,5 @@
 import Item from "./Item.js";
-
+//현재 시스템에서 굴러가는 Item생성을 관리하는 
 class ItemController {
 
     INTERVAL_MIN = 0;
@@ -9,13 +9,15 @@ class ItemController {
     items = [];
 
 
-    constructor(ctx, itemImages, scaleRatio, speed) {
+    constructor(itemUnlock ,scoreInstance, ctx, itemImages, scaleRatio, speed) {
+        //스코어 정보를 콘스트럭터에 전달
+        this.scoreInstance = scoreInstance;
+        this.itemUnlock = itemUnlock;
         this.ctx = ctx;
         this.canvas = ctx.canvas;
         this.itemImages = itemImages;
         this.scaleRatio = scaleRatio;
         this.speed = speed;
-
         this.setNextItemTime();
     }
 
@@ -31,14 +33,19 @@ class ItemController {
     }
 
     createItem() {
-        const index = this.getRandomNumber(0, this.itemImages.length - 1);
-        const itemInfo = this.itemImages[index];
+        //index의 random 범위가 곧 생성되는 아이템
+        //dataBase를 통한 접근..
+        const currentStage = this.scoreInstance.currentStage;
+        const currentUnlock = this.itemUnlock.find(unlock => unlock.stage_id === currentStage);
+        console.log(currentUnlock, currentStage)
+        const index = currentUnlock.item_id;
+        const randomIndex = Math.floor(Math.random() * index);
+        const itemInfo = this.itemImages[randomIndex];
         const x = this.canvas.width * 1.5;
         const y = this.getRandomNumber(
             10,
             this.canvas.height - itemInfo.height
         );
-
         const item = new Item(
             this.ctx,
             itemInfo.id,
@@ -83,6 +90,7 @@ class ItemController {
     }
 
     reset() {
+        //this.items는 생성된 아이템?
         this.items = [];
     }
 }
